@@ -21,7 +21,7 @@ if [ -d "$DEPLOY_DIR/.git" ]; then
   echo "[*] Updating repo..."
   cd "$DEPLOY_DIR"
   git fetch origin
-  git reset --hard origin/main
+  git reset --hard origin/master
 else
   echo "[*] Cloning repo..."
   git clone "$REPO_URL" "$DEPLOY_DIR"
@@ -30,7 +30,7 @@ fi
 # 3. Install dependencies
 echo "[*] Installing dependencies..."
 cd "$DEPLOY_DIR"
-/root/.bun/bin/bun install --frozen-lockfile
+/root/.bun/bin/bun install
 
 # 4. Create env dir if missing
 mkdir -p "$ENV_DIR"
