@@ -1,0 +1,14 @@
+{
+  "name": "tg-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch run src/index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.6.0",
+    "telegram": "^2.26.22",
+    "@anthropic-ai/sdk": "^0.30.0"
+  }
+}
