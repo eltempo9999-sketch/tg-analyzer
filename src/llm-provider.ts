@@ -213,6 +213,59 @@ async function completeAzureOpenAI(
   };
 }
 
+// ─── OpenRouter ───────────────────────────────────────────────────────────────
+
+async function completeOpenRouter(
+  systemPrompt: string,
+  messages: ChatMessage[]
+): Promise<LLMResult> {
+  const apiKey = process.env.OPENROUTER_API_KEY ?? "";
+  if (!apiKey) throw new Error("[OpenRouter] OPENROUTER_API_KEY not set");
+  const model = process.env.OPENROUTER_MODEL ?? "anthropic/claude-sonnet-4-6";
+
+  const inputTokens = estimateTokens(
+    systemPrompt + messages.map((m) => m.content).join("")
+  );
+
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "system", content: systemPrompt }, ...messages],
+      temperature: 0.7,
+      max_tokens: 2048,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.status.toString());
+    throw new Error(`[OpenRouter] request failed: ${res.status} ${text}`);
+  }
+
+  type ORResponse = {
+    choices: { message: { content: string } }[];
+    usage: { prompt_tokens: number; completion_tokens: number };
+    model: string;
+  };
+  const json = (await res.json()) as ORResponse;
+  const completion = json.choices[0]?.message?.content ?? "";
+  const outputTokens = json.usage?.completion_tokens ?? estimateTokens(completion);
+
+  return {
+    data: completion,
+    usage: {
+      inputTokens: json.usage?.prompt_tokens ?? inputTokens,
+      outputTokens,
+      model: json.model ?? model,
+      provider: "openrouter",
+    },
+  };
+}
+
 // ─── Factory ──────────────────────────────────────────────────────────────────
 
 export async function completeText(
@@ -223,5 +276,6 @@ export async function completeText(
   console.log(`[tg-analyzer/llm] provider=${provider}`);
   if (provider === "gigachat") return completeGigaChat(systemPrompt, messages);
   if (provider === "azureopenai") return completeAzureOpenAI(systemPrompt, messages);
+  if (provider === "openrouter") return completeOpenRouter(systemPrompt, messages);
   return completeAnthropic(systemPrompt, messages);
 }
