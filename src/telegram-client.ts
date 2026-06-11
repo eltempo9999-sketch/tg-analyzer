@@ -18,3 +18,11 @@ export function createTelegramClient(sessionString = ""): TelegramClient {
 export function isConfigured(): boolean {
   return API_ID > 0 && API_HASH.length > 0;
 }
+
+export function getApiCredentials() {
+  return { apiId: API_ID, apiHash: API_HASH };
+}
+
+export function getSessionString(client: TelegramClient): string {
+  return (client.session as StringSession).save();
+}

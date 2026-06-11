@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "fs";
 import { authMiddleware } from "./middleware/auth";
 import analyzeRoute from "./routes/analyze";
 import findDialogsRoute from "./routes/find-dialogs";
+import authRoute from "./routes/auth";
 
 // Load env file if running outside systemd
 const envFile = process.env.ENV_FILE ?? "/etc/tg-analyzer/analyzer.env";
@@ -24,6 +25,7 @@ const protected_ = new Hono();
 protected_.use("/*", authMiddleware);
 protected_.route("/analyze", analyzeRoute);
 protected_.route("/find-dialogs", findDialogsRoute);
+protected_.route("/auth", authRoute);
 
 const app = new Hono();
 app.get("/health", (c) => c.json({ ok: true, service: "tg-analyzer" }));
