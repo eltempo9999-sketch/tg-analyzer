@@ -34,6 +34,14 @@ app.post("/", async (c) => {
   try {
     await client.connect();
 
+    // Наполняем кэш сущностей (access_hash) — иначе getInputEntity по «голому»
+    // userId из find-dialogs падает с "Could not find the input entity".
+    try {
+      await client.getDialogs({ limit: 200 });
+    } catch (e) {
+      console.error("[fetch-messages] getDialogs warmup failed:", e);
+    }
+
     const results: {
       dialogId: string;
       found: boolean;
