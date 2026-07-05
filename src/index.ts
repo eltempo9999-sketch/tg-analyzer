@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "fs";
 import { authMiddleware } from "./middleware/auth";
 import analyzeRoute from "./routes/analyze";
 import findDialogsRoute from "./routes/find-dialogs";
+import fetchMessagesRoute from "./routes/fetch-messages";
 import authRoute from "./routes/auth";
 
 // Load env file if running outside systemd
@@ -25,6 +26,7 @@ const protected_ = new Hono();
 protected_.use("/*", authMiddleware);
 protected_.route("/analyze", analyzeRoute);
 protected_.route("/find-dialogs", findDialogsRoute);
+protected_.route("/fetch-messages", fetchMessagesRoute);
 protected_.route("/auth", authRoute);
 
 const app = new Hono();
